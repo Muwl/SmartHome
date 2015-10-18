@@ -1,0 +1,168 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/white"
+    android:fillViewport="true"
+    android:scrollbars="none" >
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical" >
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp" >
+
+            <TextView
+                android:id="@+id/gateway_text1"
+                android:layout_width="97dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="网关IP"
+                android:textColor="#121212"
+                android:textSize="@dimen/first_font" />
+
+            <ImageView
+                android:id="@+id/gateway_image1"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:src="@drawable/arrow_blue" />
+
+            <EditText
+                android:id="@+id/gateway_ip"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@id/gateway_image1"
+                android:layout_toRightOf="@id/gateway_text1"
+                android:background="@null"
+                android:textColor="#00bdff"
+                android:textSize="@dimen/first_font" />
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/divider" />
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp" >
+
+            <TextView
+                android:id="@+id/gateway_text2"
+                android:layout_width="97dp"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:text="网关ID"
+                android:textColor="#121212"
+                android:textSize="@dimen/first_font" />
+
+            <TextView
+                android:id="@+id/gateway_getid"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignParentRight="true"
+                android:layout_centerVertical="true"
+                android:clickable="true"
+                android:text="获取网关ID"
+                android:textColor="#00bdff"
+                android:textSize="@dimen/first_font" />
+
+            <TextView
+                android:id="@+id/gateway_id"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_centerVertical="true"
+                android:layout_marginRight="8dp"
+                android:layout_toLeftOf="@id/gateway_getid"
+                android:layout_toRightOf="@id/gateway_text2"
+                android:background="@null"
+                android:singleLine="true"
+                android:textColor="#646464"
+                android:textSize="@dimen/first_font" />
+        </RelativeLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="12dp"
+            android:gravity="center_vertical"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:layout_width="97dp"
+                android:layout_height="wrap_content"
+                android:text="网关型号"
+                android:textColor="#121212"
+                android:textSize="@dimen/first_font" />
+
+            <TextView
+                android:id="@+id/gateway_type"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginRight="13dp"
+                android:background="@null"
+                android:singleLine="true"
+                android:text="HYV1.1"
+                android:textColor="#646464"
+                android:textSize="@dimen/first_font" />
+        </LinearLayout>
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="1px"
+            android:background="@color/divider" />
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="10dp"
+            android:layout_marginLeft="20dp"
+            android:layout_marginRight="20dp"
+            android:layout_marginTop="50dp"
+            android:gravity="center"
+            android:orientation="horizontal" >
+
+            <TextView
+                android:id="@+id/gateway_save"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/blue_bg"
+                android:clickable="true"
+                android:gravity="center"
+                android:padding="0dp"
+                android:text="保存"
+                android:textColor="#00bdff"
+                android:textSize="@dimen/first_font" />
+
+            <TextView
+                android:id="@+id/gateway_cancel"
+                android:layout_width="0dp"
+                android:layout_height="40dp"
+                android:layout_marginLeft="10dp"
+                android:layout_weight="1"
+                android:background="@drawable/glay_bg"
+                android:clickable="true"
+                android:gravity="center"
+                android:padding="0dp"
+                android:text="放弃"
+                android:textColor="#646464"
+                android:textSize="@dimen/first_font" />
+        </LinearLayout>
+    </LinearLayout>
+
+</ScrollView>

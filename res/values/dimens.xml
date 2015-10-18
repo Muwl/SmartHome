@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <dimen name="title_font">20sp</dimen>
+    <dimen name="first_font">17sp</dimen>
+    <dimen name="second_font">16sp</dimen>
+    <dimen name="thrid_font">14sp</dimen>
+
+</resources>

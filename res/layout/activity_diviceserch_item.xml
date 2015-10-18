@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@drawable/item_bg"
+    android:gravity="center_vertical"
+    android:orientation="horizontal"
+    android:paddingBottom="7dp"
+    android:paddingLeft="12dp"
+    android:paddingRight="12dp"
+    android:paddingTop="7dp" >
+
+    <ImageView
+        android:id="@+id/diviceserch_item_image"
+        android:layout_width="58dp"
+        android:layout_height="58dp"
+        android:src="@drawable/device_bulb_normal" />
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="10dp"
+        android:layout_weight="1"
+        android:gravity="center_vertical"
+        android:orientation="vertical" >
+
+        <TextView
+            android:id="@+id/diciceserch_item_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="灯泡"
+            android:textColor="#121212"
+            android:textSize="@dimen/first_font" />
+
+        <TextView
+            android:id="@+id/diciceserch_item_locate"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:text="大厅"
+            android:textColor="#909090"
+            android:textSize="@dimen/second_font" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/diciceserch_item_address"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="大厅壁中"
+        android:textColor="#121212"
+        android:textSize="@dimen/first_font" />
+
+</LinearLayout>
