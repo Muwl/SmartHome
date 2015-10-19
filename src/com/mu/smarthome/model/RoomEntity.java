@@ -12,5 +12,11 @@ import com.mu.smarthome.activity.BaseActivity;
 public class RoomEntity implements Serializable {
 	public String name;
 	public String roomId;// 0:全部  1:其他
+	@Override
+	public String toString() {
+		return "RoomEntity [name=" + name + ", roomId=" + roomId + "]";
+	}
+	
+	
 
 }

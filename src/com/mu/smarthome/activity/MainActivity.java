@@ -21,6 +21,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.CheckBox;
 import android.widget.GridView;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.ListView;
@@ -58,7 +59,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 	private ImageView mImageView;
 	private float mCurrentCheckedRadioLeft;// 当前被选中的RadioButton距离左侧的距离
-	// private HorizontalScrollView mHorizontalScrollView;// 上面的水平滚动控件
+//	 private HorizontalScrollView mHorizontalScrollView;// 上面的水平滚动控件
 	private ViewPager mViewPager; // 下方的可横向拖动的控件
 	private ArrayList<View> mViews;// 用来存放下方滚动的layout(layout_1,layout_2,layout_3)
 
@@ -174,8 +175,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 		mImageView = (ImageView) findViewById(R.id.main_tab2_bomimg);
 
-		// mHorizontalScrollView = (HorizontalScrollView)
-		// findViewById(R.id.main_tab2_hscrollview);
+//		 mHorizontalScrollView = (HorizontalScrollView)
+//		 findViewById(R.id.main_tab2_hscrollview);
 
 		mViewPager = (ViewPager) findViewById(R.id.main_tab2_pager);
 
@@ -191,7 +192,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			radio.setBackgroundResource(android.R.color.transparent);
 			radio.setButtonDrawable(android.R.color.transparent);
 			LinearLayout.LayoutParams l = new LinearLayout.LayoutParams(
-					LayoutParams.WRAP_CONTENT, LayoutParams.MATCH_PARENT,
+					LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT,
 					Gravity.CENTER);
 			l.weight = 1;
 			l.width = evryWidth;
@@ -239,12 +240,12 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 						mImageView.startAnimation(animationSet);// 开始上面蓝色横条图片的动画切换
 						mViewPager.setCurrentItem(radioButtonId - _id);// 让下方ViewPager跟随上面的HorizontalScrollView切换
 						mCurrentCheckedRadioLeft = rb.getLeft();// 更新当前蓝色横条距离左边的距离
-						// mHorizontalScrollView.smoothScrollTo(
-						// (int) mCurrentCheckedRadioLeft - evryWidth, 0);
+//						 mHorizontalScrollView.smoothScrollTo(
+//						 (int) mCurrentCheckedRadioLeft - evryWidth, 0);
 
 						mImageView
 								.setLayoutParams(new LinearLayout.LayoutParams(
-										rb.getRight() - rb.getLeft(),
+										evryWidth,
 										DensityUtil
 												.dip2px(MainActivity.this, 2)));
 
@@ -289,7 +290,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			params2.width = DensityUtil.dip2px(this, 80);
 			params2.height = DensityUtil.dip2px(this, 80);
 			params2.gravity = Gravity.CENTER;
-			button.setId(1000 + i);
+			button.setId(2000 + i);
 			button.setLayoutParams(params2);
 			button.setText(strings.get(i));
 			buttons.add(button);
@@ -313,7 +314,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				int radioButtonId = group.getCheckedRadioButtonId();
-				int s = radioButtonId - 1000;
+				int s = radioButtonId - 2000;
 				for (int i = 0; i < buttons.size(); i++) {
 					if (i == s) {
 						LayoutParams params = (LayoutParams) buttons.get(i)

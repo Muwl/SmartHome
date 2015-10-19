@@ -1,6 +1,12 @@
 package com.mu.smarthome.adapter;
 
+import java.util.List;
+
+import com.alibaba.sdk.android.dpa.util.ToolKit;
 import com.mu.smarthome.R;
+import com.mu.smarthome.model.DeviceEntity;
+import com.mu.smarthome.model.RoomEntity;
+import com.mu.smarthome.utils.ToosUtils;
 
 import android.content.Context;
 import android.view.View;
@@ -17,25 +23,31 @@ import android.widget.TextView;
 public class DeviceSerchAdapter extends BaseAdapter {
 
 	private Context context;
+	private List<DeviceEntity> entities;
+	private List<RoomEntity> roomEntities;
 
-	public DeviceSerchAdapter(Context context) {
+	public DeviceSerchAdapter(Context context, List<DeviceEntity> entities,
+			List<RoomEntity> roomEntities) {
 		super();
 		this.context = context;
+		this.entities = entities;
+		this.roomEntities = roomEntities;
+
 	}
 
 	@Override
 	public int getCount() {
-		return 5;
+		return entities.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return null;
+		return entities.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return 0;
+		return position;
 	}
 
 	@Override
@@ -57,6 +69,32 @@ public class DeviceSerchAdapter extends BaseAdapter {
 		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
+
+		holder.name.setText(entities.get(position).name);
+		if (ToosUtils.isStringEmpty(entities.get(position).location)) {
+			holder.address.setText("");
+		} else {
+			holder.address.setText(entities.get(position).location);
+		}
+		if (ToosUtils.isStringEmpty(entities.get(position).roomId)
+				|| roomEntities == null) {
+			holder.locate.setText(entities.get(position).longAddress
+					.substring(8) + "");
+		} else {
+			for (int i = 0; i < roomEntities.size(); i++) {
+				if (entities.get(position).roomId
+						.equals(roomEntities.get(i).roomId)) {
+					holder.locate
+							.setText(entities.get(position).longAddress
+									.substring(8)
+									+ "\u3000"
+									+ roomEntities.get(i).name);
+				}
+			}
+		}
+
+		holder.image.setImageResource(ToosUtils.getDrawable(
+				entities.get(position).type, entities.get(position).running));
 		return convertView;
 	}
 

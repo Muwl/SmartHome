@@ -11,6 +11,21 @@ public class GatewayEntity implements Serializable {
 	public String ipAddress;
 	public String identier;
 	public String type;
+	public GatewayEntity(String ipAddress, String identier, String type) {
+		super();
+		this.ipAddress = ipAddress;
+		this.identier = identier;
+		this.type = type;
+	}
+	@Override
+	public String toString() {
+		return "GatewayEntity [ipAddress=" + ipAddress + ", identier="
+				+ identier + ", type=" + type + "]";
+	}
+	
+	
+	
+	
 	
 	
 }

@@ -1,5 +1,6 @@
 package com.mu.smarthome.activity;
 
+import java.util.ArrayList;
 import java.util.Dictionary;
 import java.util.List;
 import java.util.logging.LoggingMXBean;
@@ -20,6 +21,8 @@ import com.google.gson.Gson;
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.DeviceSerchAdapter;
 import com.mu.smarthome.dialog.SetGateIdDialog;
+import com.mu.smarthome.model.DeviceEntity;
+import com.mu.smarthome.model.RoomEntity;
 import com.mu.smarthome.model.TransferEntity;
 import com.mu.smarthome.oos.OSSAndroid;
 import com.mu.smarthome.utils.LogManager;
@@ -48,8 +51,12 @@ public class DeviceSerchActivity extends BaseActivity implements
 	private View pro;
 
 	private OSSAndroid ossAndroid;
-	
+
 	private TransferEntity transferEntity;
+
+	private List<RoomEntity> roomEntities;
+
+	private List<DeviceEntity> deviceEntities;
 
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -65,10 +72,37 @@ public class DeviceSerchActivity extends BaseActivity implements
 				pro.setVisibility(View.GONE);
 				ToastUtils.displayShortToast(DeviceSerchActivity.this, "下载成功！");
 				String s = (String) msg.obj;
-				Gson gson=new Gson();
-				transferEntity=gson.fromJson(s, TransferEntity.class);
-				
-				LogManager.LogShow("----------------", s, LogManager.ERROR);
+				Gson gson = new Gson();
+				transferEntity = gson.fromJson(s, TransferEntity.class);
+				List<DeviceEntity> dentities = transferEntity.devices;
+				List<RoomEntity> rentities = transferEntity.rooms;
+				ShareDataTool.SaveRooms(DeviceSerchActivity.this,
+						transferEntity.rooms);
+				ShareDataTool.SaveGateWay(DeviceSerchActivity.this,
+						transferEntity.gateway);
+				ShareDataTool.SaveDevice(DeviceSerchActivity.this,
+						transferEntity.devices);
+				if (dentities == null) {
+					dentities = new ArrayList<DeviceEntity>();
+				}
+				if (rentities == null) {
+					rentities = new ArrayList<RoomEntity>();
+				}
+				deviceEntities.clear();
+				roomEntities.clear();
+				for (int i = 0; i < dentities.size(); i++) {
+					deviceEntities.add(dentities.get(i));
+				}
+				for (int j = 0; j < rentities.size(); j++) {
+					roomEntities.add(rentities.get(j));
+				}
+				adapter.notifyDataSetChanged();
+				LogManager.LogShow("----------------",
+						transferEntity.gateway.toString(), LogManager.ERROR);
+				LogManager.LogShow("----------------",
+						deviceEntities.toString(), LogManager.ERROR);
+				LogManager.LogShow("----------------",
+						transferEntity.rooms.toString(), LogManager.ERROR);
 
 				break;
 			case 2000:
@@ -93,9 +127,12 @@ public class DeviceSerchActivity extends BaseActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_diviceserch);
+		
+
+		initView();
+		
 		ossAndroid = new OSSAndroid();
 		ossAndroid.main(this, handler);
-		initView();
 	}
 
 	private void initView() {
@@ -104,12 +141,21 @@ public class DeviceSerchActivity extends BaseActivity implements
 		down = (TextView) findViewById(R.id.diviceserch_down);
 		save = (TextView) findViewById(R.id.diviceserch_save);
 		pro = findViewById(R.id.diviceserch_pro);
-		adapter = new DeviceSerchAdapter(this);
-		listView.setAdapter(adapter);
 
 		serch.setOnClickListener(this);
 		down.setOnClickListener(this);
 		save.setOnClickListener(this);
+		
+		deviceEntities = ShareDataTool.getDevice(this);
+		roomEntities = ShareDataTool.getRooms(this);
+		if (deviceEntities == null) {
+			deviceEntities = new ArrayList<DeviceEntity>();
+		}
+		if (roomEntities == null) {
+			roomEntities = new ArrayList<RoomEntity>();
+		}
+		adapter = new DeviceSerchAdapter(this, deviceEntities, roomEntities);
+		listView.setAdapter(adapter);
 		listView.setOnItemClickListener(new OnItemClickListener() {
 
 			@Override
@@ -120,6 +166,12 @@ public class DeviceSerchActivity extends BaseActivity implements
 				startActivity(intent);
 			}
 		});
+	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		
 	}
 
 	@Override

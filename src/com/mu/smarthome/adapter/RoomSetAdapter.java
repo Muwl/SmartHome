@@ -1,5 +1,7 @@
 package com.mu.smarthome.adapter;
 
+import java.util.List;
+
 import android.content.Context;
 import android.os.Handler;
 import android.view.View;
@@ -12,6 +14,7 @@ import android.widget.TextView;
 import com.mu.smarthome.R;
 import com.mu.smarthome.dialog.CustomeDialog;
 import com.mu.smarthome.dialog.SetNameDialog;
+import com.mu.smarthome.model.RoomEntity;
 
 /**
  * @author Mu
@@ -21,27 +24,30 @@ import com.mu.smarthome.dialog.SetNameDialog;
 public class RoomSetAdapter extends BaseAdapter {
 
 	private Context context;
+	private List<RoomEntity> entities;
 	private Handler handler;
 
-	public RoomSetAdapter(Context context, Handler handler) {
+	public RoomSetAdapter(Context context, List<RoomEntity> entities,
+			Handler handler) {
 		super();
 		this.context = context;
 		this.handler = handler;
+		this.entities = entities;
 	}
 
 	@Override
 	public int getCount() {
-		return 4;
+		return entities.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return null;
+		return entities.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return 0;
+		return position;
 	}
 
 	@Override
@@ -66,8 +72,8 @@ public class RoomSetAdapter extends BaseAdapter {
 
 			@Override
 			public void onClick(View arg0) {
-				SetNameDialog dialog = new SetNameDialog(context, "ddd",
-						handler);
+				SetNameDialog dialog = new SetNameDialog(context, entities
+						.get(position).name, handler);
 			}
 		});
 
@@ -79,6 +85,8 @@ public class RoomSetAdapter extends BaseAdapter {
 						handler, "删除当前房间", position, -1);
 			}
 		});
+
+		holder.name.setText(entities.get(position).name);
 		return convertView;
 	}
 

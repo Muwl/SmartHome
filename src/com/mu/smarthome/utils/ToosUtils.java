@@ -16,9 +16,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Bitmap.CompressFormat;
+import android.graphics.drawable.Drawable;
 import android.os.Environment;
 import android.widget.TextView;
 
+import com.mu.smarthome.R;
 import com.mu.smarthome.activity.MainActivity;
 
 /**
@@ -72,6 +74,57 @@ public class ToosUtils {
 			return false;
 		} else {
 			return true;
+		}
+	}
+
+	public static int getDrawable(String type, boolean run) {
+		switch (type) {
+		case "01":
+			// 插座
+			if (run) {
+				return R.drawable.device_socket_press;
+			} else {
+				return R.drawable.device_socket_normal;
+			}
+
+		case "02":
+			// 空调
+			if (run) {
+				return R.drawable.device_airconditioning_press;
+			} else {
+				return R.drawable.device_airconditioning_normal;
+			}
+		case "03":
+			// 红外
+			if (run) {
+				return R.drawable.sensor_on;
+			} else {
+				return R.drawable.sensor_off;
+			}
+		case "04":
+			// 复合开关
+			if (run) {
+				return R.drawable.device_lightgroup_press;
+			} else {
+				return R.drawable.device_lightgroup_normal;
+			}
+		case "05":
+			// 双联开关
+			if (run) {
+				return R.drawable.device_lightgroup_press;
+			} else {
+				return R.drawable.device_lightgroup_normal;
+			}
+		case "06":
+			// 单联开关
+			if (run) {
+				return R.drawable.device_bulb_press;
+			} else {
+				return R.drawable.device_bulb_normal;
+			}
+
+		default:
+			return R.drawable.ic_launcher;
 		}
 	}
 

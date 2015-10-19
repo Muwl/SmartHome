@@ -57,7 +57,12 @@ public class ShareDataTool {
 				Context.MODE_PRIVATE);
 		Editor e = sp.edit();
 		Gson gson = new Gson();
-		e.putString("rooms", gson.toJson(entities));
+		if (entities == null) {
+			e.putString("rooms", null);
+		} else {
+			e.putString("rooms", gson.toJson(entities));
+		}
+
 		return e.commit();
 	}
 
@@ -89,7 +94,12 @@ public class ShareDataTool {
 				Context.MODE_PRIVATE);
 		Editor e = sp.edit();
 		Gson gson = new Gson();
-		e.putString("devices", gson.toJson(entities));
+		if (entities == null) {
+			e.putString("devices", null);
+		} else {
+			e.putString("devices", gson.toJson(entities));
+		}
+
 		return e.commit();
 	}
 
@@ -120,7 +130,12 @@ public class ShareDataTool {
 				Context.MODE_PRIVATE);
 		Editor e = sp.edit();
 		Gson gson = new Gson();
-		e.putString("gateway", gson.toJson(entity));
+		if (entity == null) {
+			e.putString("gateway", "");
+		} else {
+			e.putString("gateway", gson.toJson(entity));
+		}
+
 		return e.commit();
 	}
 

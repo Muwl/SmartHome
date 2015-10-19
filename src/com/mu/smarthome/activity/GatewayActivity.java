@@ -1,14 +1,15 @@
 package com.mu.smarthome.activity;
 
-import com.mu.smarthome.R;
-
 import android.os.Bundle;
-import android.text.Editable;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.BaseAdapter;
 import android.widget.EditText;
 import android.widget.TextView;
+
+import com.mu.smarthome.R;
+import com.mu.smarthome.model.GatewayEntity;
+import com.mu.smarthome.utils.LogManager;
+import com.mu.smarthome.utils.ShareDataTool;
 
 /**
  * @author Mu
@@ -29,6 +30,8 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 
 	private TextView cancel;
 
+	private GatewayEntity entity;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -48,8 +51,21 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 		getId.setOnClickListener(this);
 		save.setOnClickListener(this);
 		cancel.setOnClickListener(this);
+		entity = ShareDataTool.getGateWay(this);
+		if (entity == null) {
+			entity = new GatewayEntity("", "", "");
+		}
+		ip.setText(entity.ipAddress);
+		id.setText(entity.identier);
+		type.setText("HYV1.1");
+		com.mu.smarthome.utils.LogManager.LogShow("-----", "00000000000000", LogManager.ERROR);
 	}
-
+	
+	@Override
+	protected void onResume() {
+		super.onResume();
+		com.mu.smarthome.utils.LogManager.LogShow("-----", "00000000000000ddd", LogManager.ERROR);
+	}
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
