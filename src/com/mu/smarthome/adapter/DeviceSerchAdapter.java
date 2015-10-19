@@ -14,11 +14,11 @@ import android.widget.TextView;
  * @date 2015-10-17下午4:29:26
  * @description 设备搜索适配器
  */
-public class DiviceSerchAdapter extends BaseAdapter {
+public class DeviceSerchAdapter extends BaseAdapter {
 
 	private Context context;
 
-	public DiviceSerchAdapter(Context context) {
+	public DeviceSerchAdapter(Context context) {
 		super();
 		this.context = context;
 	}

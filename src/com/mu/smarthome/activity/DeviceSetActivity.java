@@ -15,7 +15,7 @@ import android.widget.TextView;
  * @date 2015-10-17下午7:12:05
  * @description 设备配置
  */
-public class DiviceSetActivity extends BaseActivity implements OnClickListener {
+public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 
 	private TextView title;
 

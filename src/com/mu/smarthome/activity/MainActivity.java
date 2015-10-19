@@ -30,7 +30,7 @@ import android.widget.RadioGroup.OnCheckedChangeListener;
 import android.widget.TextView;
 
 import com.mu.smarthome.R;
-import com.mu.smarthome.dialog.ControlAdapter;
+import com.mu.smarthome.adapter.ControlAdapter;
 import com.mu.smarthome.utils.DensityUtil;
 
 /**
@@ -385,7 +385,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		// for (int i = 0; i < titleList.size(); i++) {
 		Intent intent = new Intent(this, RoomSetActivity.class);
 		mViews.add(getView("View", intent));
-		Intent intent1 = new Intent(this, DiviceSerchActivity.class);
+		Intent intent1 = new Intent(this, DeviceSerchActivity.class);
 		mViews.add(getView("View1", intent1));
 		Intent intent2 = new Intent(this, GatewayActivity.class);
 		mViews.add(getView("View2", intent2));

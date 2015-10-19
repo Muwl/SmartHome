@@ -1,4 +1,4 @@
-package com.mu.smarthome.dialog;
+package com.mu.smarthome.adapter;
 
 import com.mu.smarthome.R;
 import com.mu.smarthome.utils.DensityUtil;
