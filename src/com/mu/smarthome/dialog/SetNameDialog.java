@@ -26,12 +26,14 @@ public class SetNameDialog extends Dialog implements
 	private TextView cancel;
 	private EditText editText;
 	private String name;
+	private int flag;
 
-	public SetNameDialog(Context context, String name, Handler handler) {
+	public SetNameDialog(Context context, String name, Handler handler, int flag) {
 		super(context, R.style.dialog2);
 		requestWindowFeature(Window.FEATURE_NO_TITLE);
 		this.handler = handler;
 		this.context = context;
+		this.flag = flag;
 		this.name = name;
 		setContentView(R.layout.addmark_dialog);
 		getWindow().setBackgroundDrawable(new BitmapDrawable());
@@ -57,12 +59,9 @@ public class SetNameDialog extends Dialog implements
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.addmark_dialog_ok:
-			// if (ToosUtils.isTextEmpty(editText)) {
-			// ToastUtils.displayShortToast(context, "备注名称不能为空");
-			// return;
-			// }
 			Message message = new Message();
 			message.what = 104;
+			message.arg1 = flag;
 			message.obj = ToosUtils.getTextContent(editText);
 			handler.sendMessage(message);
 			dismiss();

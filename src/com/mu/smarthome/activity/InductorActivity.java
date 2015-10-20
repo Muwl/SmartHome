@@ -1,5 +1,8 @@
 package com.mu.smarthome.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
@@ -9,6 +12,10 @@ import android.widget.TextView;
 
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.InductorAdapter;
+import com.mu.smarthome.model.DeviceEntity;
+import com.mu.smarthome.model.InductorEntity;
+import com.mu.smarthome.model.RoomEntity;
+import com.mu.smarthome.utils.ShareDataTool;
 
 /**
  * @author Mu
@@ -25,11 +32,45 @@ public class InductorActivity extends BaseActivity {
 
 	private InductorAdapter adapter;
 
+	private List<InductorEntity> inductorEntities;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_inductor);
+		initDate();
 		initView();
+	}
+
+	private void initDate() {
+		List<RoomEntity> roomEntities = ShareDataTool.getRooms(this);
+		List<DeviceEntity> deviceEntities = ShareDataTool.getDevice(this);
+		if (roomEntities == null) {
+			roomEntities = new ArrayList<RoomEntity>();
+		}
+		if (deviceEntities == null) {
+			deviceEntities = new ArrayList<DeviceEntity>();
+		}
+		inductorEntities = new ArrayList<InductorEntity>();
+
+		for (int i = 0; i < roomEntities.size(); i++) {
+			List<DeviceEntity> entities = new ArrayList<DeviceEntity>();
+			InductorEntity inductorEntity = new InductorEntity();
+			inductorEntity.entity = roomEntities.get(i);
+			for (int j = 0; j < deviceEntities.size(); j++) {
+				if ("03".equals(deviceEntities.get(j).type)
+						&& roomEntities.get(i).roomId.equals(deviceEntities
+								.get(j).roomId)) {
+					entities.add(deviceEntities.get(j));
+				}
+			}
+
+			if (entities.size() != 0) {
+				inductorEntity.deviceEntities = entities;
+				inductorEntities.add(inductorEntity);
+			}
+		}
+
 	}
 
 	private void initView() {
@@ -39,7 +80,7 @@ public class InductorActivity extends BaseActivity {
 
 		title.setText("人体感应器");
 		back.setVisibility(View.VISIBLE);
-		adapter = new InductorAdapter(this);
+		adapter = new InductorAdapter(this, inductorEntities);
 		back.setOnClickListener(new OnClickListener() {
 
 			@Override

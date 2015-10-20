@@ -22,6 +22,7 @@ import android.widget.TextView;
 
 import com.mu.smarthome.R;
 import com.mu.smarthome.activity.MainActivity;
+import com.mu.smarthome.model.RoomEntity;
 
 /**
  * @author Mu
@@ -125,6 +126,49 @@ public class ToosUtils {
 
 		default:
 			return R.drawable.ic_launcher;
+		}
+	}
+
+	public static String getRoonName(String roomId, List<RoomEntity> entities) {
+		if (entities == null) {
+			return "";
+		}
+		if (ToosUtils.isStringEmpty(roomId)) {
+			return "";
+		}
+		for (int i = 0; i < entities.size(); i++) {
+			if (roomId.equals(entities.get(i).roomId)) {
+				return entities.get(i).name;
+			}
+		}
+
+		return "其他";
+
+	}
+
+	public static String getType(String type) {
+		switch (type) {
+		case "01":
+			// 插座
+			return "插座";
+		case "02":
+			// 空调
+			return "空调";
+		case "03":
+			// 红外
+			return "红外";
+		case "04":
+			// 复合开关
+			return "复合开关";
+		case "05":
+			// 双联开关
+			return "双联开关";
+		case "06":
+			// 单联开关
+			return "单联开关";
+
+		default:
+			return "未知";
 		}
 	}
 

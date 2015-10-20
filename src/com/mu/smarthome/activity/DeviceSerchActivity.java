@@ -66,7 +66,15 @@ public class DeviceSerchActivity extends BaseActivity implements
 				ossAndroid.downLoad();
 				break;
 			case 109:
-
+				pro.setVisibility(View.VISIBLE);
+				TransferEntity entity = new TransferEntity();
+				entity.devices = ShareDataTool
+						.getDevice(DeviceSerchActivity.this);
+				entity.rooms = ShareDataTool.getRooms(DeviceSerchActivity.this);
+				entity.gateway = ShareDataTool
+						.getGateWay(DeviceSerchActivity.this);
+				Gson gson2 = new Gson();
+				ossAndroid.upload(gson2.toJson(entity));
 				break;
 			case 1000:
 				pro.setVisibility(View.GONE);
@@ -127,10 +135,9 @@ public class DeviceSerchActivity extends BaseActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_diviceserch);
-		
 
 		initView();
-		
+
 		ossAndroid = new OSSAndroid();
 		ossAndroid.main(this, handler);
 	}
@@ -145,7 +152,7 @@ public class DeviceSerchActivity extends BaseActivity implements
 		serch.setOnClickListener(this);
 		down.setOnClickListener(this);
 		save.setOnClickListener(this);
-		
+
 		deviceEntities = ShareDataTool.getDevice(this);
 		roomEntities = ShareDataTool.getRooms(this);
 		if (deviceEntities == null) {
@@ -163,16 +170,57 @@ public class DeviceSerchActivity extends BaseActivity implements
 					int position, long id) {
 				Intent intent = new Intent(DeviceSerchActivity.this,
 						DeviceSetActivity.class);
+				intent.putExtra("position", position);
 				startActivity(intent);
 			}
 		});
 	}
 
+	public void refush() {
+		deviceEntities.clear();
+		roomEntities.clear();
+		List<RoomEntity> roomEntities1 = ShareDataTool.getRooms(this);
+		if (roomEntities1 == null) {
+			roomEntities1 = new ArrayList<RoomEntity>();
+		}
+		for (int i = 0; i < roomEntities1.size(); i++) {
+			roomEntities.add(roomEntities1.get(i));
+		}
+		List<DeviceEntity> deviceEntities1 = ShareDataTool.getDevice(this);
+		if (deviceEntities1 == null) {
+			deviceEntities1 = new ArrayList<DeviceEntity>();
+		}
+		for (int i = 0; i < deviceEntities1.size(); i++) {
+			deviceEntities.add(deviceEntities1.get(i));
+		}
+		adapter.notifyDataSetChanged();
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
-		
+		Log.e("00000000000000", "+++++++++++++++++++++++++++++");
 	}
+
+	//
+	// @Override
+	// protected void onPause() {
+	// super.onPause();
+	// Log.e("00000000000000", "======================");
+	// }
+	//
+	//
+	// @Override
+	// public void onAttachedToWindow() {
+	// super.onAttachedToWindow();
+	// Log.e("00000000000000", "======================");
+	// }
+	// @Override
+	// public void onDetachedFromWindow() {
+	// super.onDetachedFromWindow();
+	// Log.e("00000000000000", "+++++++++++++++++++++++++++++");
+	// }
+	//
 
 	@Override
 	public void onClick(View v) {
@@ -197,8 +245,15 @@ public class DeviceSerchActivity extends BaseActivity implements
 				SetGateIdDialog dialog = new SetGateIdDialog(
 						DeviceSerchActivity.this, handler, 109);
 			} else {
-				// pro.setVisibility(View.VISIBLE);
-				// ossAndroid.upload();
+				pro.setVisibility(View.VISIBLE);
+				TransferEntity entity = new TransferEntity();
+				entity.devices = ShareDataTool
+						.getDevice(DeviceSerchActivity.this);
+				entity.rooms = ShareDataTool.getRooms(DeviceSerchActivity.this);
+				entity.gateway = ShareDataTool
+						.getGateWay(DeviceSerchActivity.this);
+				Gson gson = new Gson();
+				ossAndroid.upload(gson.toJson(entity));
 			}
 			break;
 

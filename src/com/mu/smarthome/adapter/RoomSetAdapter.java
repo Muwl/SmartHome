@@ -73,7 +73,7 @@ public class RoomSetAdapter extends BaseAdapter {
 			@Override
 			public void onClick(View arg0) {
 				SetNameDialog dialog = new SetNameDialog(context, entities
-						.get(position).name, handler);
+						.get(position).name, handler, position);
 			}
 		});
 

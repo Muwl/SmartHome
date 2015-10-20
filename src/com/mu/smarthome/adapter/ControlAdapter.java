@@ -1,7 +1,11 @@
 package com.mu.smarthome.adapter;
 
+import java.util.List;
+
 import com.mu.smarthome.R;
+import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.utils.DensityUtil;
+import com.mu.smarthome.utils.ToosUtils;
 
 import android.content.Context;
 import android.view.View;
@@ -21,47 +25,59 @@ import android.widget.TextView;
 public class ControlAdapter extends BaseAdapter {
 
 	private Context context;
+	private List<DeviceEntity> entities;
 	private int width;
 
-	public ControlAdapter(Context context,int width) {
+	public ControlAdapter(Context context, List<DeviceEntity> entities,
+			int width) {
 		super();
 		this.context = context;
-		this.width=width;
+		this.entities = entities;
+		this.width = width;
 	}
 
 	@Override
 	public int getCount() {
-		return 10;
+		return entities.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return null;
+		return entities.size();
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return 0;
+		return position;
 	}
 
 	@Override
 	public View getView(int position, View convertView, ViewGroup parent) {
-		ViewHolder holder=null;
-		if (convertView==null) {
-			convertView=View.inflate(context, R.layout.activity_control_item, null);
-			holder=new ViewHolder();
-			holder.root=convertView.findViewById(R.id.control_item_root);
-			holder.checkBox=(CheckBox) convertView.findViewById(R.id.control_item_check);
-			holder.imageView=(ImageView) convertView.findViewById(R.id.control_item_image);
-			holder.name=(TextView) convertView.findViewById(R.id.control_item_name);
+		ViewHolder holder = null;
+		if (convertView == null) {
+			convertView = View.inflate(context, R.layout.activity_control_item,
+					null);
+			holder = new ViewHolder();
+			holder.root = convertView.findViewById(R.id.control_item_root);
+			holder.checkBox = (CheckBox) convertView
+					.findViewById(R.id.control_item_check);
+			holder.imageView = (ImageView) convertView
+					.findViewById(R.id.control_item_image);
+			holder.name = (TextView) convertView
+					.findViewById(R.id.control_item_name);
 			convertView.setTag(holder);
-		}else{
+		} else {
 			holder = (ViewHolder) convertView.getTag();
 		}
-		LayoutParams params=(LayoutParams) holder.root.getLayoutParams();
-		params.width=(width-DensityUtil.dip2px(context, 52))/3;
-		params.height=(width-DensityUtil.dip2px(context, 52))/3;
+		LayoutParams params = (LayoutParams) holder.root.getLayoutParams();
+		params.width = (width - DensityUtil.dip2px(context, 52)) / 3;
+		params.height = (width - DensityUtil.dip2px(context, 52)) / 3;
 		holder.root.setLayoutParams(params);
+
+		holder.checkBox.setChecked(entities.get(position).selected);
+		holder.name.setText(entities.get(position).name);
+		holder.imageView.setImageResource(ToosUtils.getDrawable(
+				entities.get(position).type, entities.get(position).running));
 		return convertView;
 	}
 

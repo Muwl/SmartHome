@@ -13,18 +13,20 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.view.ViewPager.OnPageChangeListener;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.ViewGroup.LayoutParams;
 import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
+import android.widget.AdapterView;
+import android.widget.AdapterView.OnItemClickListener;
 import android.widget.CheckBox;
+import android.widget.CompoundButton;
 import android.widget.GridView;
-import android.widget.HorizontalScrollView;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
-import android.widget.ListView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.RadioGroup.OnCheckedChangeListener;
@@ -32,7 +34,11 @@ import android.widget.TextView;
 
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.ControlAdapter;
+import com.mu.smarthome.model.DeviceEntity;
+import com.mu.smarthome.model.InductorEntity;
+import com.mu.smarthome.model.RoomEntity;
 import com.mu.smarthome.utils.DensityUtil;
+import com.mu.smarthome.utils.ShareDataTool;
 
 /**
  * @author Mu
@@ -59,7 +65,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 	private ImageView mImageView;
 	private float mCurrentCheckedRadioLeft;// 当前被选中的RadioButton距离左侧的距离
-//	 private HorizontalScrollView mHorizontalScrollView;// 上面的水平滚动控件
+	// private HorizontalScrollView mHorizontalScrollView;// 上面的水平滚动控件
 	private ViewPager mViewPager; // 下方的可横向拖动的控件
 	private ArrayList<View> mViews;// 用来存放下方滚动的layout(layout_1,layout_2,layout_3)
 
@@ -97,6 +103,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 	private int width;
 
+	private List<InductorEntity> inductorEntities;
+
+	private List<DeviceEntity> gridEntities;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -105,13 +115,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		manager.dispatchCreate(savedInstanceState);
 		evryWidth = DensityUtil.getScreenWidth(this) / 3;
 		width = DensityUtil.getScreenWidth(this);
-
+		gridEntities = new ArrayList<DeviceEntity>();
 		getTitleInfo();
 		initView();
-
 		iniListener();
 		iniVariable();
-
 		mViewPager.setCurrentItem(0);
 	}
 
@@ -143,7 +151,18 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		setting = (RadioButton) findViewById(R.id.main_bottom_setting);
 		tab1 = findViewById(R.id.main_tab1);
 		tab2 = findViewById(R.id.main_tab2);
+		titleLayout = (LinearLayout) findViewById(R.id.main_tab2_title_lay);
+		layout = (LinearLayout) findViewById(R.id.main_tab2_lay);
+		mImageView = (ImageView) findViewById(R.id.main_tab2_bomimg);
+
+		mViewPager = (ViewPager) findViewById(R.id.main_tab2_pager);
+
+		group = (RadioGroup) findViewById(R.id.control_group);
+		controlView = findViewById(R.id.control_root);
+		allcheBox = (CheckBox) findViewById(R.id.control_allcheck);
+		gridView = (GridView) findViewById(R.id.control_grid);
 		rig.setOnClickListener(this);
+		rig.setVisibility(View.VISIBLE);
 		controldivice.setOnClickListener(this);
 		switchImageView.setOnClickListener(this);
 		bottomGroup.check(R.id.main_bottom_control);
@@ -167,18 +186,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 			}
 		});
-
-		titleLayout = (LinearLayout) findViewById(R.id.main_tab2_title_lay);
-		layout = (LinearLayout) findViewById(R.id.main_tab2_lay);
-
-		// mImageView = new ImageView(this);
-
-		mImageView = (ImageView) findViewById(R.id.main_tab2_bomimg);
-
-//		 mHorizontalScrollView = (HorizontalScrollView)
-//		 findViewById(R.id.main_tab2_hscrollview);
-
-		mViewPager = (ViewPager) findViewById(R.id.main_tab2_pager);
 
 		myRadioGroup = new RadioGroup(this);
 		myRadioGroup.setLayoutParams(new LayoutParams(
@@ -240,32 +247,43 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 						mImageView.startAnimation(animationSet);// 开始上面蓝色横条图片的动画切换
 						mViewPager.setCurrentItem(radioButtonId - _id);// 让下方ViewPager跟随上面的HorizontalScrollView切换
 						mCurrentCheckedRadioLeft = rb.getLeft();// 更新当前蓝色横条距离左边的距离
-//						 mHorizontalScrollView.smoothScrollTo(
-//						 (int) mCurrentCheckedRadioLeft - evryWidth, 0);
+						// mHorizontalScrollView.smoothScrollTo(
+						// (int) mCurrentCheckedRadioLeft - evryWidth, 0);
 
 						mImageView
 								.setLayoutParams(new LinearLayout.LayoutParams(
-										evryWidth,
-										DensityUtil
-												.dip2px(MainActivity.this, 2)));
+										evryWidth, DensityUtil.dip2px(
+												MainActivity.this, 2)));
 
 					}
 				});
 
-		group = (RadioGroup) findViewById(R.id.control_group);
-		controlView = findViewById(R.id.control_root);
-		allcheBox = (CheckBox) findViewById(R.id.control_allcheck);
-		gridView = (GridView) findViewById(R.id.control_grid);
+		//
 
-		adapter = new ControlAdapter(this, width);
+		inductorEntities = new ArrayList<InductorEntity>();
+		List<DeviceEntity> deviceEntities = ShareDataTool.getDevice(this);
+		List<RoomEntity> roomEntities = ShareDataTool.getRooms(this);
+		if (deviceEntities == null) {
+			deviceEntities = new ArrayList<DeviceEntity>();
+		}
+		if (roomEntities == null) {
+			roomEntities = new ArrayList<RoomEntity>();
+		}
+		for (int i = 0; i < roomEntities.size(); i++) {
+			InductorEntity entity = new InductorEntity();
+			entity.entity = roomEntities.get(i);
+			List<DeviceEntity> list = new ArrayList<DeviceEntity>();
+			for (int j = 0; j < deviceEntities.size(); j++) {
+				if (roomEntities.get(i).roomId
+						.equals(deviceEntities.get(j).roomId)) {
+					list.add(deviceEntities.get(j));
+				}
+			}
+			entity.deviceEntities = list;
+			inductorEntities.add(entity);
+		}
 
-		List<String> strings = new ArrayList<String>();
-		strings.add("按钮1");
-		strings.add("按钮2");
-		strings.add("按钮3");
-		strings.add("按钮4");
-		strings.add("按钮5");
-		for (int i = 0; i < strings.size(); i++) {
+		for (int i = 0; i < inductorEntities.size(); i++) {
 			ImageView imageView = new ImageView(this);
 			group.addView(imageView);
 			android.widget.RadioGroup.LayoutParams params1 = (android.widget.RadioGroup.LayoutParams) imageView
@@ -292,10 +310,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			params2.gravity = Gravity.CENTER;
 			button.setId(2000 + i);
 			button.setLayoutParams(params2);
-			button.setText(strings.get(i));
+			button.setText(inductorEntities.get(i).entity.name);
 			buttons.add(button);
 
-			if (i == strings.size() - 1) {
+			if (i == inductorEntities.size() - 1) {
 				ImageView imageView2 = new ImageView(this);
 				group.addView(imageView2);
 				android.widget.RadioGroup.LayoutParams params3 = (android.widget.RadioGroup.LayoutParams) imageView2
@@ -324,6 +342,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 						params.height = DensityUtil.dip2px(MainActivity.this,
 								96);
 						buttons.get(i).setLayoutParams(params);
+
 					} else {
 						LayoutParams params = (LayoutParams) buttons.get(i)
 								.getLayoutParams();
@@ -345,12 +364,82 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 					}
 				}
 
+				gridEntities.clear();
+				for (int j = 0; j < inductorEntities.get(s).deviceEntities
+						.size(); j++) {
+					inductorEntities.get(s).deviceEntities.get(j).selected = false;
+					gridEntities.add(inductorEntities.get(s).deviceEntities
+							.get(j));
+				}
+				allcheBox.setChecked(false);
+				adapter.notifyDataSetChanged();
+
+				setSwitch();
+
 			}
 		});
 
-		group.check(buttons.get(0).getId());
-
+		adapter = new ControlAdapter(this, gridEntities, width);
 		gridView.setAdapter(adapter);
+
+		gridView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				gridEntities.get(position).selected = !gridEntities
+						.get(position).selected;
+				adapter.notifyDataSetChanged();
+
+				setSwitch();
+			}
+		});
+
+		if (buttons.size() != 0) {
+			group.check(buttons.get(0).getId());
+			emptyView.setVisibility(View.GONE);
+			controlView.setVisibility(View.VISIBLE);
+		} else {
+			emptyView.setVisibility(View.VISIBLE);
+			controlView.setVisibility(View.GONE);
+		}
+
+		allcheBox
+				.setOnCheckedChangeListener(new android.widget.CheckBox.OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean flag) {
+						for (int j = 0; j < gridEntities.size(); j++) {
+							gridEntities.get(j).selected = flag;
+						}
+						adapter.notifyDataSetChanged();
+
+						setSwitch();
+					}
+
+				});
+
+	}
+
+	private void setSwitch() {
+		boolean b = false;
+		for (int i = 0; i < gridEntities.size(); i++) {
+			if (!gridEntities.get(i).selected) {
+				continue;
+			}
+			if (gridEntities.get(i).running) {
+				b = false;
+				break;
+
+			}
+			b = true;
+		}
+		if (b) {
+			switchImageView.setImageResource(R.drawable.tab_switch_on);
+		} else {
+			switchImageView.setImageResource(R.drawable.tab_switch_off);
+		}
 
 	}
 
@@ -363,7 +452,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			startActivity(intent);
 			break;
 		case R.id.control_add:
-
 			bottomGroup.check(R.id.main_bottom_setting);
 			myRadioGroup.check(_id + 1);
 
@@ -395,7 +483,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	}
 
 	private void iniListener() {
-		// TODO Auto-generated method stub
 		mViewPager.setOnPageChangeListener(new MyPagerOnPageChangeListener());
 	}
 
@@ -472,10 +559,45 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		 */
 		@Override
 		public void onPageSelected(int position) {
-			// TODO Auto-generated method stub
 			RadioButton radioButton = (RadioButton) findViewById(_id + position);
 			radioButton.performClick();
+			if (position == 0) {
+				RoomSetActivity activity = (RoomSetActivity) manager
+						.getActivity("View");
+				activity.refush();
+			} else if (position == 1) {
+				DeviceSerchActivity activity = (DeviceSerchActivity) manager
+						.getActivity("View1");
+				activity.refush();
+			} else if (position == 2) {
+				GatewayActivity activity = (GatewayActivity) manager
+						.getActivity("View2");
+				activity.refush();
+			}
 
+			Log.e("----------", "ddd" + manager.getActivity("View"));
+			// manager.getCurrentActivity()
 		}
 	}
+
+	@Override
+	protected void onResume() {
+		super.onResume();
+		if (myRadioGroup.getCheckedRadioButtonId() - _id == 0) {
+			RoomSetActivity activity = (RoomSetActivity) manager
+					.getActivity("View");
+			activity.refush();
+		} else if (myRadioGroup.getCheckedRadioButtonId() - _id == 1) {
+			DeviceSerchActivity activity = (DeviceSerchActivity) manager
+					.getActivity("View1");
+			activity.refush();
+		} else if (myRadioGroup.getCheckedRadioButtonId() - _id == 2) {
+			GatewayActivity activity = (GatewayActivity) manager
+					.getActivity("View2");
+			activity.refush();
+		}
+
+		Log.e("----------", "ddd" + manager.getActivity("View"));
+	}
+
 }

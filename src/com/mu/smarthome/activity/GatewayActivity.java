@@ -1,15 +1,23 @@
 package com.mu.smarthome.activity;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import android.os.Bundle;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.mu.smarthome.R;
+import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.model.GatewayEntity;
+import com.mu.smarthome.model.RoomEntity;
 import com.mu.smarthome.utils.LogManager;
 import com.mu.smarthome.utils.ShareDataTool;
+import com.mu.smarthome.utils.ToastUtils;
+import com.mu.smarthome.utils.ToosUtils;
 
 /**
  * @author Mu
@@ -58,14 +66,27 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 		ip.setText(entity.ipAddress);
 		id.setText(entity.identier);
 		type.setText("HYV1.1");
-		com.mu.smarthome.utils.LogManager.LogShow("-----", "00000000000000", LogManager.ERROR);
+		com.mu.smarthome.utils.LogManager.LogShow("-----", "00000000000000",
+				LogManager.ERROR);
 	}
-	
+
+	public void refush() {
+		entity = ShareDataTool.getGateWay(this);
+		if (entity == null) {
+			entity = new GatewayEntity("", "", "");
+		}
+		ip.setText(entity.ipAddress);
+		id.setText(entity.identier);
+		type.setText("HYV1.1");
+	}
+
 	@Override
 	protected void onResume() {
 		super.onResume();
-		com.mu.smarthome.utils.LogManager.LogShow("-----", "00000000000000ddd", LogManager.ERROR);
+		com.mu.smarthome.utils.LogManager.LogShow("-----", "00000000000000ddd",
+				LogManager.ERROR);
 	}
+
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
@@ -73,7 +94,13 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 
 			break;
 		case R.id.gateway_save:
-
+			if (ToosUtils.isTextEmpty(ip)) {
+				ToastUtils.displayShortToast(GatewayActivity.this, "网关IP不能为空");
+				return;
+			}
+			entity.ipAddress = ToosUtils.getTextContent(ip);
+			ShareDataTool.SaveGateWay(GatewayActivity.this, entity);
+			ToastUtils.displayShortToast(GatewayActivity.this, "保存成功！");
 			break;
 		case R.id.gateway_cancel:
 

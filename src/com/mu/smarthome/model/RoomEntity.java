@@ -16,6 +16,17 @@ public class RoomEntity implements Serializable {
 	public String toString() {
 		return "RoomEntity [name=" + name + ", roomId=" + roomId + "]";
 	}
+	public RoomEntity(String name, String roomId) {
+		super();
+		this.name = name;
+		this.roomId = roomId;
+	}
+	public RoomEntity() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+	
+	
 	
 	
 

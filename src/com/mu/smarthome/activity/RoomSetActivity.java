@@ -13,6 +13,7 @@ import android.widget.TextView;
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.RoomSetAdapter;
 import com.mu.smarthome.dialog.SetNameDialog;
+import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.model.RoomEntity;
 import com.mu.smarthome.utils.ShareDataTool;
 
@@ -33,7 +34,45 @@ public class RoomSetActivity extends BaseActivity {
 
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case 104:
+				int position = (int) msg.arg1;
+				String name = (String) msg.obj;
+				if (position == -1) {
+					entities.add(new RoomEntity(name, String.valueOf((System
+							.currentTimeMillis() / 1000))));
+				} else {
+					entities.get(position).name = name;
+				}
 
+				adapter.notifyDataSetChanged();
+				ShareDataTool.SaveRooms(RoomSetActivity.this, entities);
+
+				break;
+
+			case 40:
+				int position1 = msg.arg1;
+
+				List<DeviceEntity> deviceEntities = ShareDataTool
+						.getDevice(RoomSetActivity.this);
+				if (deviceEntities == null) {
+					deviceEntities = new ArrayList<DeviceEntity>();
+				}
+				for (int i = 0; i < deviceEntities.size(); i++) {
+					if (entities.get(position1).roomId.equals(deviceEntities
+							.get(i).roomId)) {
+						deviceEntities.get(i).roomId = "";
+					}
+				}
+				entities.remove(position1);
+				adapter.notifyDataSetChanged();
+				ShareDataTool.SaveDevice(RoomSetActivity.this, deviceEntities);
+				ShareDataTool.SaveRooms(RoomSetActivity.this, entities);
+
+				break;
+			default:
+				break;
+			}
 		};
 	};
 
@@ -50,6 +89,18 @@ public class RoomSetActivity extends BaseActivity {
 
 	}
 
+	public void refush() {
+		entities.clear();
+		List<RoomEntity> roomEntities = ShareDataTool.getRooms(this);
+		if (roomEntities == null) {
+			roomEntities = new ArrayList<RoomEntity>();
+		}
+		for (int i = 0; i < roomEntities.size(); i++) {
+			entities.add(roomEntities.get(i));
+		}
+		adapter.notifyDataSetChanged();
+	}
+
 	private void initView() {
 		listView = (ListView) findViewById(R.id.roomset_listview);
 		add = (TextView) findViewById(R.id.roomset_addroom);
@@ -60,7 +111,7 @@ public class RoomSetActivity extends BaseActivity {
 			@Override
 			public void onClick(View arg0) {
 				SetNameDialog dialog = new SetNameDialog(RoomSetActivity.this,
-						"", handler);
+						"", handler, -1);
 			}
 		});
 	}

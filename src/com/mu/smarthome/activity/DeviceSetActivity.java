@@ -1,10 +1,18 @@
 package com.mu.smarthome.activity;
 
 import java.io.Serializable;
+import java.util.ArrayList;
+import java.util.List;
 
 import com.mu.smarthome.R;
+import com.mu.smarthome.dialog.RoomSetDialog;
+import com.mu.smarthome.model.DeviceEntity;
+import com.mu.smarthome.model.RoomEntity;
+import com.mu.smarthome.utils.ShareDataTool;
+import com.mu.smarthome.utils.ToosUtils;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.ImageView;
@@ -39,10 +47,43 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 
 	private TextView cancel;
 
+	private int position;
+
+	private DeviceEntity deviceEntity;
+
+	private List<RoomEntity> roomEntities;
+
+	private Handler handler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case 91:
+				RoomEntity roomEntity = (RoomEntity) msg.obj;
+				if (roomEntity != null) {
+					deviceEntity.roomId = roomEntity.roomId;
+					room.setText(roomEntity.name);
+				}
+				break;
+
+			default:
+				break;
+			}
+		};
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_diviceset);
+		position = getIntent().getIntExtra("position", 0);
+		List<DeviceEntity> entities = ShareDataTool.getDevice(this);
+		if (entities == null) {
+			entities = new ArrayList<DeviceEntity>();
+		}
+		roomEntities = ShareDataTool.getRooms(this);
+		if (roomEntities == null) {
+			roomEntities = new ArrayList<RoomEntity>();
+		}
+		deviceEntity = entities.get(position);
 		initView();
 	}
 
@@ -66,6 +107,27 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 		save.setOnClickListener(this);
 		cancel.setOnClickListener(this);
 
+		name.setText(deviceEntity.name);
+		if (!ToosUtils.isStringEmpty(deviceEntity.longAddress)) {
+			id.setText(deviceEntity.longAddress);
+		} else {
+			id.setText("");
+		}
+
+		type.setText(ToosUtils.getType(deviceEntity.type));
+		room.setText(ToosUtils.getRoonName(deviceEntity.roomId, roomEntities));
+		if (ToosUtils.isStringEmpty(deviceEntity.location)) {
+			address.setText("未设置");
+		} else {
+			address.setText(deviceEntity.location);
+		}
+
+		if (ToosUtils.isStringEmpty(deviceEntity.controlLocation)) {
+			device.setText("未设置");
+		} else {
+			device.setText(deviceEntity.controlLocation);
+		}
+
 	}
 
 	@Override
@@ -75,6 +137,11 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 			finish();
 			break;
 		case R.id.diviceset_roomview:
+			if (roomEntities == null || roomEntities.size() == 0) {
+				return;
+			}
+			RoomSetDialog dialog = new RoomSetDialog(DeviceSetActivity.this,
+					handler, deviceEntity.roomId);
 			break;
 		case R.id.diviceset_save:
 			break;

@@ -1,7 +1,10 @@
 package com.mu.smarthome.adapter;
 
+import java.util.List;
+
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.InductorItemAdapter.ViewHolder;
+import com.mu.smarthome.model.InductorEntity;
 import com.mu.smarthome.view.MyListView;
 
 import android.content.Context;
@@ -19,25 +22,27 @@ import android.widget.TextView;
 public class InductorAdapter extends BaseAdapter {
 
 	private Context context;
+	private List<InductorEntity> entities;
 
-	public InductorAdapter(Context context) {
+	public InductorAdapter(Context context, List<InductorEntity> entities) {
 		super();
 		this.context = context;
+		this.entities = entities;
 	}
 
 	@Override
 	public int getCount() {
-		return 2;
+		return entities.size();
 	}
 
 	@Override
 	public Object getItem(int position) {
-		return null;
+		return entities.get(position);
 	}
 
 	@Override
 	public long getItemId(int position) {
-		return 0;
+		return position;
 	}
 
 	@Override
@@ -56,7 +61,9 @@ public class InductorAdapter extends BaseAdapter {
 			holder = (ViewHolder) convertView.getTag();
 		}
 
-		InductorItemAdapter adapter = new InductorItemAdapter(context);
+		holder.name.setText(entities.get(position).entity.name);
+		InductorItemAdapter adapter = new InductorItemAdapter(context,
+				entities.get(position).deviceEntities);
 		holder.listView.setAdapter(adapter);
 		return convertView;
 	}
