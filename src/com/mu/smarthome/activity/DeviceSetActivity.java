@@ -9,14 +9,17 @@ import com.mu.smarthome.dialog.RoomSetDialog;
 import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.model.RoomEntity;
 import com.mu.smarthome.utils.ShareDataTool;
+import com.mu.smarthome.utils.ToastUtils;
 import com.mu.smarthome.utils.ToosUtils;
 
 import android.os.Bundle;
 import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 /**
  * @author Mu
@@ -39,9 +42,9 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 
 	private View roomView;
 
-	private TextView address;
+	private EditText address;
 
-	private TextView device;
+	private EditText device;
 
 	private TextView save;
 
@@ -52,6 +55,8 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 	private DeviceEntity deviceEntity;
 
 	private List<RoomEntity> roomEntities;
+
+	List<DeviceEntity> entities;
 
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -75,7 +80,7 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_diviceset);
 		position = getIntent().getIntExtra("position", 0);
-		List<DeviceEntity> entities = ShareDataTool.getDevice(this);
+		entities = ShareDataTool.getDevice(this);
 		if (entities == null) {
 			entities = new ArrayList<DeviceEntity>();
 		}
@@ -95,8 +100,8 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 		type = (TextView) findViewById(R.id.diviceset_type);
 		room = (TextView) findViewById(R.id.diviceset_room);
 		roomView = findViewById(R.id.diviceset_roomview);
-		address = (TextView) findViewById(R.id.diviceset_address);
-		device = (TextView) findViewById(R.id.diviceset_control);
+		address = (EditText) findViewById(R.id.diviceset_address);
+		device = (EditText) findViewById(R.id.diviceset_control);
 		save = (TextView) findViewById(R.id.diviceset_save);
 		cancel = (TextView) findViewById(R.id.diviceset_cancel);
 
@@ -144,8 +149,32 @@ public class DeviceSetActivity extends BaseActivity implements OnClickListener {
 					handler, deviceEntity.roomId);
 			break;
 		case R.id.diviceset_save:
+			if (ToosUtils.isTextEmpty(name)) {
+				ToastUtils.displayShortToast(DeviceSetActivity.this, "请输入设备名称");
+				return;
+			}
+
+			deviceEntity.name = ToosUtils.getTextContent(name);
+			if (!ToosUtils.isTextEmpty(address)
+					&& "未设置".equals(ToosUtils.getTextContent(address))) {
+				deviceEntity.location = "";
+			} else {
+				deviceEntity.location = ToosUtils.getTextContent(address);
+			}
+
+			if (!ToosUtils.isTextEmpty(device)
+					&& "未设置".equals(ToosUtils.getTextContent(device))) {
+				deviceEntity.controlLocation = "";
+			} else {
+				deviceEntity.controlLocation = ToosUtils.getTextContent(device);
+			}
+			entities.set(position, deviceEntity);
+			ShareDataTool.SaveDevice(DeviceSetActivity.this, entities);
+			ToastUtils.displayShortToast(DeviceSetActivity.this, "保存成功！");
+			finish();
 			break;
 		case R.id.diviceset_cancel:
+			finish();
 			break;
 
 		default:

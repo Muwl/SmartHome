@@ -124,8 +124,8 @@
             android:id="@+id/diviceset_roomview"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:clickable="true"
             android:background="@drawable/item_bg"
+            android:clickable="true"
             android:padding="12dp" >
 
             <TextView
@@ -177,7 +177,7 @@
                 android:textColor="#121212"
                 android:textSize="@dimen/first_font" />
 
-            <TextView
+            <EditText
                 android:id="@+id/diviceset_address"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
@@ -207,7 +207,7 @@
                 android:textColor="#121212"
                 android:textSize="@dimen/first_font" />
 
-            <TextView
+            <EditText
                 android:id="@+id/diviceset_control"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

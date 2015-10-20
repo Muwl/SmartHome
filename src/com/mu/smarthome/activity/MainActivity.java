@@ -9,6 +9,7 @@ import android.app.LocalActivityManager;
 import android.content.Intent;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.os.Handler;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
@@ -22,6 +23,7 @@ import android.view.animation.AnimationSet;
 import android.view.animation.TranslateAnimation;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.CheckBox;
 import android.widget.CompoundButton;
 import android.widget.GridView;
@@ -34,6 +36,7 @@ import android.widget.TextView;
 
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.ControlAdapter;
+import com.mu.smarthome.dialog.DeviceSetDialog;
 import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.model.InductorEntity;
 import com.mu.smarthome.model.RoomEntity;
@@ -107,6 +110,19 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 	private List<DeviceEntity> gridEntities;
 
+	private Handler handler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case 91:
+
+				break;
+
+			default:
+				break;
+			}
+		};
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -165,8 +181,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		rig.setVisibility(View.VISIBLE);
 		controldivice.setOnClickListener(this);
 		switchImageView.setOnClickListener(this);
-		bottomGroup.check(R.id.main_bottom_control);
+
 		title.setText("控制");
+
 		bottomGroup.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
@@ -177,15 +194,18 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 					tab2.setVisibility(View.GONE);
 					title.setText("控制");
 					rig.setVisibility(View.VISIBLE);
+					onrefush();
 				} else {
 					tab1.setVisibility(View.GONE);
 					tab2.setVisibility(View.VISIBLE);
 					title.setText("配置");
 					rig.setVisibility(View.GONE);
+					
 				}
 
 			}
 		});
+		
 
 		myRadioGroup = new RadioGroup(this);
 		myRadioGroup.setLayoutParams(new LayoutParams(
@@ -261,6 +281,58 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		//
 
 		inductorEntities = new ArrayList<InductorEntity>();
+
+		adapter = new ControlAdapter(this, gridEntities, width);
+		gridView.setAdapter(adapter);
+		gridView.setOnItemClickListener(new OnItemClickListener() {
+
+			@Override
+			public void onItemClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				gridEntities.get(position).selected = !gridEntities
+						.get(position).selected;
+				adapter.notifyDataSetChanged();
+
+				setSwitch();
+			}
+		});
+
+		gridView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> arg0, View arg1,
+					int position, long arg3) {
+				DeviceSetDialog dialog = new DeviceSetDialog(MainActivity.this,
+						handler, gridEntities.get(position));
+				return true;
+			}
+		});
+
+		
+
+		allcheBox
+				.setOnCheckedChangeListener(new android.widget.CheckBox.OnCheckedChangeListener() {
+
+					@Override
+					public void onCheckedChanged(CompoundButton arg0,
+							boolean flag) {
+						for (int j = 0; j < gridEntities.size(); j++) {
+							gridEntities.get(j).selected = flag;
+						}
+						adapter.notifyDataSetChanged();
+
+						setSwitch();
+					}
+
+				});
+	
+//		onrefush();
+		bottomGroup.check(R.id.main_bottom_control);
+
+	}
+
+	public void onrefush() {
+		inductorEntities.clear();
 		List<DeviceEntity> deviceEntities = ShareDataTool.getDevice(this);
 		List<RoomEntity> roomEntities = ShareDataTool.getRooms(this);
 		if (deviceEntities == null) {
@@ -275,14 +347,17 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			List<DeviceEntity> list = new ArrayList<DeviceEntity>();
 			for (int j = 0; j < deviceEntities.size(); j++) {
 				if (roomEntities.get(i).roomId
-						.equals(deviceEntities.get(j).roomId)) {
+						.equals(deviceEntities.get(j).roomId)
+						&& !"03".equals(deviceEntities.get(j).type)) {
 					list.add(deviceEntities.get(j));
 				}
 			}
 			entity.deviceEntities = list;
 			inductorEntities.add(entity);
 		}
-
+		group.removeAllViews();
+		imageViews.clear();
+		buttons.clear();
 		for (int i = 0; i < inductorEntities.size(); i++) {
 			ImageView imageView = new ImageView(this);
 			group.addView(imageView);
@@ -326,7 +401,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			}
 
 		}
-
+		
 		group.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
@@ -379,46 +454,15 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			}
 		});
 
-		adapter = new ControlAdapter(this, gridEntities, width);
-		gridView.setAdapter(adapter);
-
-		gridView.setOnItemClickListener(new OnItemClickListener() {
-
-			@Override
-			public void onItemClick(AdapterView<?> parent, View view,
-					int position, long id) {
-				gridEntities.get(position).selected = !gridEntities
-						.get(position).selected;
-				adapter.notifyDataSetChanged();
-
-				setSwitch();
-			}
-		});
-
 		if (buttons.size() != 0) {
 			group.check(buttons.get(0).getId());
+//			group.check(2001);
 			emptyView.setVisibility(View.GONE);
 			controlView.setVisibility(View.VISIBLE);
 		} else {
 			emptyView.setVisibility(View.VISIBLE);
 			controlView.setVisibility(View.GONE);
 		}
-
-		allcheBox
-				.setOnCheckedChangeListener(new android.widget.CheckBox.OnCheckedChangeListener() {
-
-					@Override
-					public void onCheckedChanged(CompoundButton arg0,
-							boolean flag) {
-						for (int j = 0; j < gridEntities.size(); j++) {
-							gridEntities.get(j).selected = flag;
-						}
-						adapter.notifyDataSetChanged();
-
-						setSwitch();
-					}
-
-				});
 
 	}
 
