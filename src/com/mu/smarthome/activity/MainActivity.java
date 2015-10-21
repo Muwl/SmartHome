@@ -42,6 +42,7 @@ import com.mu.smarthome.model.InductorEntity;
 import com.mu.smarthome.model.RoomEntity;
 import com.mu.smarthome.utils.DensityUtil;
 import com.mu.smarthome.utils.ShareDataTool;
+import com.mu.smarthome.utils.ToosUtils;
 
 /**
  * @author Mu
@@ -200,12 +201,11 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 					tab2.setVisibility(View.VISIBLE);
 					title.setText("配置");
 					rig.setVisibility(View.GONE);
-					
+
 				}
 
 			}
 		});
-		
 
 		myRadioGroup = new RadioGroup(this);
 		myRadioGroup.setLayoutParams(new LayoutParams(
@@ -308,8 +308,6 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			}
 		});
 
-		
-
 		allcheBox
 				.setOnCheckedChangeListener(new android.widget.CheckBox.OnCheckedChangeListener() {
 
@@ -325,8 +323,8 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 					}
 
 				});
-	
-//		onrefush();
+
+		// onrefush();
 		bottomGroup.check(R.id.main_bottom_control);
 
 	}
@@ -355,9 +353,32 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			entity.deviceEntities = list;
 			inductorEntities.add(entity);
 		}
+		InductorEntity entity = new InductorEntity();
+		entity.entity = new RoomEntity("其他", String.valueOf(System
+				.currentTimeMillis() / 1000));
+		List<DeviceEntity> list = new ArrayList<DeviceEntity>();
+		for (int i = 0; i < deviceEntities.size(); i++) {
+			if (ToosUtils.isStringEmpty(deviceEntities.get(i).roomId)) {
+				list.add(deviceEntities.get(i));
+			}
+		}
+		entity.deviceEntities = list;
+		if (list.size() != 0) {
+			inductorEntities.add(entity);
+		}
+
+		if (roomEntities.size() == 0 && deviceEntities.size() != 0) {
+			inductorEntities.clear();
+			InductorEntity entity1 = new InductorEntity();
+			entity1.entity = new RoomEntity("全部", String.valueOf(System
+					.currentTimeMillis() / 1000));
+			entity1.deviceEntities = deviceEntities;
+			inductorEntities.add(entity1);
+		}
 		group.removeAllViews();
 		imageViews.clear();
 		buttons.clear();
+
 		for (int i = 0; i < inductorEntities.size(); i++) {
 			ImageView imageView = new ImageView(this);
 			group.addView(imageView);
@@ -401,13 +422,16 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 			}
 
 		}
-		
+
 		group.setOnCheckedChangeListener(new OnCheckedChangeListener() {
 
 			@Override
 			public void onCheckedChanged(RadioGroup group, int checkedId) {
 				int radioButtonId = group.getCheckedRadioButtonId();
 				int s = radioButtonId - 2000;
+				if (s < 0) {
+					return;
+				}
 				for (int i = 0; i < buttons.size(); i++) {
 					if (i == s) {
 						LayoutParams params = (LayoutParams) buttons.get(i)
@@ -455,8 +479,14 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		});
 
 		if (buttons.size() != 0) {
+
+			// RadioButton button=buttons.get(0);
+			// button.setSelected(false);
+			// button.setChecked(false);
+			group.clearCheck();
+			// group.check(buttons.get(1).getId());
 			group.check(buttons.get(0).getId());
-//			group.check(2001);
+			// group.check(2001);
 			emptyView.setVisibility(View.GONE);
 			controlView.setVisibility(View.VISIBLE);
 		} else {
