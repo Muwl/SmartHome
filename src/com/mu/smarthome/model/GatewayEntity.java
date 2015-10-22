@@ -17,6 +17,14 @@ public class GatewayEntity implements Serializable {
 		this.identier = identier;
 		this.type = type;
 	}
+	
+	
+	public GatewayEntity() {
+		super();
+		// TODO Auto-generated constructor stub
+	}
+
+
 	@Override
 	public String toString() {
 		return "GatewayEntity [ipAddress=" + ipAddress + ", identier="

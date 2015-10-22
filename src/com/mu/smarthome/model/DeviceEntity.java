@@ -40,6 +40,12 @@ public class DeviceEntity implements Serializable {
 		this.standbyPower = standbyPower;
 		this.roomId = roomId;
 	}
+	
+	
+	public DeviceEntity() {
+		super();
+	}
+
 	@Override
 	public String toString() {
 		return "DeviceEntity [longAddress=" + longAddress + ", shortAddress="
