@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.os.Bundle;
+import android.os.Handler;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.EditText;
@@ -14,6 +15,7 @@ import com.mu.smarthome.R;
 import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.model.GatewayEntity;
 import com.mu.smarthome.model.RoomEntity;
+import com.mu.smarthome.utils.Connection;
 import com.mu.smarthome.utils.LogManager;
 import com.mu.smarthome.utils.ShareDataTool;
 import com.mu.smarthome.utils.ToastUtils;
@@ -40,10 +42,34 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 
 	private GatewayEntity entity;
 
+	private Connection connection;
+
+	private View pro;
+
+	private Handler handler = new Handler() {
+		public void handleMessage(android.os.Message msg) {
+			switch (msg.what) {
+			case Connection.GATEWAY_SUCC:
+				pro.setVisibility(View.GONE);
+				refush();
+				ToastUtils.displayShortToast(GatewayActivity.this, "获取网关成功");
+				break;
+			case Connection.ERROR_CODE:
+				pro.setVisibility(View.GONE);
+				ToastUtils.displayShortToast(GatewayActivity.this, "获取网关失败");
+				break;
+
+			default:
+				break;
+			}
+		};
+	};
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_gateway);
+		connection = new Connection(this);
 		initView();
 
 	}
@@ -55,6 +81,7 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 		getId = (TextView) findViewById(R.id.gateway_getid);
 		save = (TextView) findViewById(R.id.gateway_save);
 		cancel = (TextView) findViewById(R.id.gateway_cancel);
+		pro = findViewById(R.id.gateway_pro);
 
 		getId.setOnClickListener(this);
 		save.setOnClickListener(this);
@@ -91,7 +118,8 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.gateway_getid:
-
+			pro.setVisibility(View.VISIBLE);
+			connection.findGateWay(handler);
 			break;
 		case R.id.gateway_save:
 			if (ToosUtils.isTextEmpty(ip)) {
@@ -101,6 +129,9 @@ public class GatewayActivity extends BaseActivity implements OnClickListener {
 			entity.ipAddress = ToosUtils.getTextContent(ip);
 			ShareDataTool.SaveGateWay(GatewayActivity.this, entity);
 			ToastUtils.displayShortToast(GatewayActivity.this, "保存成功！");
+
+			pro.setVisibility(View.VISIBLE);
+			connection.findGateWay(handler);
 			break;
 		case R.id.gateway_cancel:
 

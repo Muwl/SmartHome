@@ -14,17 +14,20 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
+import android.widget.AdapterView.OnItemLongClickListener;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.DeviceSerchAdapter;
+import com.mu.smarthome.dialog.CustomeDialog;
 import com.mu.smarthome.dialog.SetGateIdDialog;
 import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.model.RoomEntity;
 import com.mu.smarthome.model.TransferEntity;
 import com.mu.smarthome.oos.OSSAndroid;
+import com.mu.smarthome.utils.Connection;
 import com.mu.smarthome.utils.LogManager;
 import com.mu.smarthome.utils.ShareDataTool;
 import com.mu.smarthome.utils.ToastUtils;
@@ -57,6 +60,8 @@ public class DeviceSerchActivity extends BaseActivity implements
 	private List<RoomEntity> roomEntities;
 
 	private List<DeviceEntity> deviceEntities;
+
+	private Connection connection;
 
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
@@ -105,12 +110,6 @@ public class DeviceSerchActivity extends BaseActivity implements
 					roomEntities.add(rentities.get(j));
 				}
 				adapter.notifyDataSetChanged();
-				LogManager.LogShow("----------------",
-						transferEntity.gateway.toString(), LogManager.ERROR);
-				LogManager.LogShow("----------------",
-						deviceEntities.toString(), LogManager.ERROR);
-				LogManager.LogShow("----------------",
-						transferEntity.rooms.toString(), LogManager.ERROR);
 
 				break;
 			case 2000:
@@ -125,6 +124,24 @@ public class DeviceSerchActivity extends BaseActivity implements
 				pro.setVisibility(View.GONE);
 				ToastUtils.displayShortToast(DeviceSerchActivity.this, "保存失败！");
 				break;
+
+			case Connection.SERCH_SUCC:
+				pro.setVisibility(View.GONE);
+				refush();
+				ToastUtils.displayShortToast(DeviceSerchActivity.this, "操作成功！");
+				break;
+			case Connection.ERROR_CODE:
+				pro.setVisibility(View.GONE);
+				ToastUtils.displayShortToast(DeviceSerchActivity.this, "操作失败！");
+				break;
+			case 40:
+				int position = msg.arg1;
+				deviceEntities.remove(position);
+				ShareDataTool.SaveDevice(DeviceSerchActivity.this,
+						deviceEntities);
+				adapter.notifyDataSetChanged();
+				break;
+
 			default:
 				break;
 			}
@@ -135,6 +152,7 @@ public class DeviceSerchActivity extends BaseActivity implements
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_diviceserch);
+		connection = new Connection(this);
 
 		initView();
 
@@ -174,6 +192,20 @@ public class DeviceSerchActivity extends BaseActivity implements
 				startActivity(intent);
 			}
 		});
+
+		listView.setOnItemLongClickListener(new OnItemLongClickListener() {
+
+			@Override
+			public boolean onItemLongClick(AdapterView<?> parent, View view,
+					int position, long id) {
+				CustomeDialog customeDialog = new CustomeDialog(
+						DeviceSerchActivity.this, handler, "确定删除此设备？",
+						position, -888);
+
+				return true;
+			}
+
+		});
 	}
 
 	public void refush() {
@@ -199,33 +231,15 @@ public class DeviceSerchActivity extends BaseActivity implements
 	@Override
 	protected void onResume() {
 		super.onResume();
-		Log.e("00000000000000", "+++++++++++++++++++++++++++++");
 	}
-
-	//
-	// @Override
-	// protected void onPause() {
-	// super.onPause();
-	// Log.e("00000000000000", "======================");
-	// }
-	//
-	//
-	// @Override
-	// public void onAttachedToWindow() {
-	// super.onAttachedToWindow();
-	// Log.e("00000000000000", "======================");
-	// }
-	// @Override
-	// public void onDetachedFromWindow() {
-	// super.onDetachedFromWindow();
-	// Log.e("00000000000000", "+++++++++++++++++++++++++++++");
-	// }
-	//
+	
 
 	@Override
 	public void onClick(View v) {
 		switch (v.getId()) {
 		case R.id.diviceserch_serchroom:
+			pro.setVisibility(View.VISIBLE);
+			connection.search(handler);
 
 			break;
 		case R.id.diviceserch_down:

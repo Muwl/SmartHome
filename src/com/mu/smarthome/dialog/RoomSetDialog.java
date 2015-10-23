@@ -30,7 +30,7 @@ import com.mu.smarthome.view.ScrollerNumberPicker;
 /**
  * @author Mu
  * @date 2015-8-6 上午9:23:47
- * @Description 行业选择
+ * @Description
  */
 public class RoomSetDialog implements OnClickListener {
 	private Dialog d = null;
@@ -44,6 +44,8 @@ public class RoomSetDialog implements OnClickListener {
 	private String roomId;
 	private int index = 0;
 	private ArrayList<RoomEntity> entities;
+	
+	
 
 	public RoomSetDialog(Context context, Handler handler, String roomId) {
 		super();

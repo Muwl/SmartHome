@@ -50,6 +50,8 @@ public class DeviceSetDialog implements OnClickListener {
 	private Handler handler;
 	private DeviceEntity entity;
 
+	public static final int RETURN_OK = 144;
+
 	public DeviceSetDialog(Context context, Handler handler, DeviceEntity entity) {
 		super();
 		this.context = context;
@@ -87,13 +89,13 @@ public class DeviceSetDialog implements OnClickListener {
 		if (ToosUtils.isStringEmpty(entity.currentPower)) {
 			curpower.setText("");
 		} else {
-			curpower.setText(PowerUtils.getPEString(entity.currentPower)+"W");
+			curpower.setText(PowerUtils.getPEString(entity.currentPower) + "W");
 		}
-//		if (ToosUtils.isStringEmpty(entity.standbyPower)) {
-//			standpower.setText("");
-//		} else {
-			standpower.setText("0W");
-//		}
+		// if (ToosUtils.isStringEmpty(entity.standbyPower)) {
+		// standpower.setText("");
+		// } else {
+		standpower.setText("0W");
+		// }
 		devswitch.setOnClickListener(this);
 		cancel.setOnClickListener(this);
 
@@ -152,6 +154,10 @@ public class DeviceSetDialog implements OnClickListener {
 			dialogAnimation(d, view, height, getWindowHeight(), true);
 			break;
 		case R.id.deviceset_switch:
+			Message message = new Message();
+			message.what = RETURN_OK;
+			message.obj = entity;
+			handler.sendMessage(message);
 			dialogAnimation(d, view, height, getWindowHeight(), true);
 			break;
 

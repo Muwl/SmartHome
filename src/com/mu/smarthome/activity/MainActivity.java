@@ -37,11 +37,14 @@ import android.widget.TextView;
 import com.mu.smarthome.R;
 import com.mu.smarthome.adapter.ControlAdapter;
 import com.mu.smarthome.dialog.DeviceSetDialog;
+import com.mu.smarthome.dialog.RoomSetDialog;
 import com.mu.smarthome.model.DeviceEntity;
 import com.mu.smarthome.model.InductorEntity;
 import com.mu.smarthome.model.RoomEntity;
+import com.mu.smarthome.utils.Connection;
 import com.mu.smarthome.utils.DensityUtil;
 import com.mu.smarthome.utils.ShareDataTool;
+import com.mu.smarthome.utils.ToastUtils;
 import com.mu.smarthome.utils.ToosUtils;
 
 /**
@@ -111,11 +114,79 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 	private List<DeviceEntity> gridEntities;
 
+	private Connection connection;
+
+	private View pro;
+
+	private boolean switchFlag = false;// true代表现在处于关闭状态 false 代表处于打开状态
+
 	private Handler handler = new Handler() {
 		public void handleMessage(android.os.Message msg) {
 			switch (msg.what) {
-			case 91:
+			case DeviceSetDialog.RETURN_OK:
+				DeviceEntity entity = (DeviceEntity) msg.obj;
+				if (entity.running) {
+					pro.setVisibility(View.VISIBLE);
+					connection.close(entity, handler);
+				} else {
+					pro.setVisibility(View.VISIBLE);
+					connection.open(entity, handler);
+				}
+				break;
+			case Connection.CLOSE_SUCC:
+				pro.setVisibility(View.GONE);
+				String longAddress = (String) msg.obj;
+				for (int i = 0; i < gridEntities.size(); i++) {
+					if (gridEntities.get(i).longAddress.equals(longAddress)) {
+						gridEntities.get(i).running = !gridEntities.get(i).running;
+					}
+				}
+				ToastUtils.displayShortToast(MainActivity.this, "操作成功！");
+				adapter.notifyDataSetChanged();
+				break;
+			case Connection.OPEN_SUCC:
+				pro.setVisibility(View.GONE);
+				String longAddress1 = (String) msg.obj;
+				for (int i = 0; i < gridEntities.size(); i++) {
+					if (gridEntities.get(i).longAddress.equals(longAddress1)) {
+						gridEntities.get(i).running = !gridEntities.get(i).running;
+					}
+				}
+				ToastUtils.displayShortToast(MainActivity.this, "操作成功！");
+				adapter.notifyDataSetChanged();
+				break;
+			case Connection.ERROR_CODE:
+				pro.setVisibility(View.GONE);
+				ToastUtils.displayShortToast(MainActivity.this, "操作失败！");
+				break;
 
+			case Connection.OPENALL_SUCC:
+				pro.setVisibility(View.GONE);
+				List<DeviceEntity> deviceEntities = (List<DeviceEntity>) msg.obj;
+				for (int j = 0; j < gridEntities.size(); j++) {
+					for (int j2 = 0; j2 < deviceEntities.size(); j2++) {
+						if (gridEntities.get(j).longAddress
+								.equals(deviceEntities.get(j2).longAddress)) {
+							gridEntities.get(j).running = true;
+						}
+					}
+				}
+				ToastUtils.displayShortToast(MainActivity.this, "操作成功！");
+				adapter.notifyDataSetChanged();
+				break;
+			case Connection.CLOSEALL_SUCC:
+				pro.setVisibility(View.GONE);
+				List<DeviceEntity> deviceEntities1 = (List<DeviceEntity>) msg.obj;
+				for (int j = 0; j < gridEntities.size(); j++) {
+					for (int j2 = 0; j2 < deviceEntities1.size(); j2++) {
+						if (gridEntities.get(j).longAddress
+								.equals(deviceEntities1.get(j2).longAddress)) {
+							gridEntities.get(j).running = false;
+						}
+					}
+				}
+				ToastUtils.displayShortToast(MainActivity.this, "操作成功！");
+				adapter.notifyDataSetChanged();
 				break;
 
 			default:
@@ -128,6 +199,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		connection = new Connection(this);
 		manager = new LocalActivityManager(this, true);
 		manager.dispatchCreate(savedInstanceState);
 		evryWidth = DensityUtil.getScreenWidth(this) / 3;
@@ -166,6 +238,7 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		control = (RadioButton) findViewById(R.id.main_bottom_control);
 		switchImageView = (ImageView) findViewById(R.id.main_bottom_switch);
 		setting = (RadioButton) findViewById(R.id.main_bottom_setting);
+		pro = findViewById(R.id.main_pro);
 		tab1 = findViewById(R.id.main_tab1);
 		tab2 = findViewById(R.id.main_tab2);
 		titleLayout = (LinearLayout) findViewById(R.id.main_tab2_title_lay);
@@ -324,8 +397,92 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 				});
 
+		group.setOnCheckedChangeListener(new OnCheckedChangeListener() {
+
+			@Override
+			public void onCheckedChanged(RadioGroup group, int checkedId) {
+				int radioButtonId = group.getCheckedRadioButtonId();
+				int s = radioButtonId - 2000;
+				if (s < 0) {
+					return;
+				}
+				for (int i = 0; i < buttons.size(); i++) {
+					if (i == s) {
+						LayoutParams params = (LayoutParams) buttons.get(i)
+								.getLayoutParams();
+						params.width = DensityUtil
+								.dip2px(MainActivity.this, 96);
+						params.height = DensityUtil.dip2px(MainActivity.this,
+								96);
+						buttons.get(i).setLayoutParams(params);
+
+					} else {
+						LayoutParams params = (LayoutParams) buttons.get(i)
+								.getLayoutParams();
+						params.width = DensityUtil
+								.dip2px(MainActivity.this, 80);
+						params.height = DensityUtil.dip2px(MainActivity.this,
+								80);
+						buttons.get(i).setLayoutParams(params);
+					}
+				}
+
+				for (int i = 0; i < imageViews.size(); i++) {
+					if (i == s || s + 1 == i) {
+						imageViews.get(i).setBackgroundResource(
+								R.color.divider_red);
+					} else {
+						imageViews.get(i)
+								.setBackgroundResource(R.color.divider);
+					}
+				}
+
+				gridEntities.clear();
+				for (int j = 0; j < inductorEntities.get(s).deviceEntities
+						.size(); j++) {
+					inductorEntities.get(s).deviceEntities.get(j).selected = false;
+					gridEntities.add(inductorEntities.get(s).deviceEntities
+							.get(j));
+				}
+				allcheBox.setChecked(false);
+				adapter.notifyDataSetChanged();
+
+				setSwitch();
+
+			}
+		});
+
 		// onrefush();
 		bottomGroup.check(R.id.main_bottom_control);
+
+	}
+
+	public void onSerchFush() {
+		List<DeviceEntity> list = ShareDataTool.getDevice(this);
+		if (list == null) {
+			list = new ArrayList<DeviceEntity>();
+		}
+		for (int i = 0; i < inductorEntities.size(); i++) {
+			for (int j = 0; j < inductorEntities.get(i).deviceEntities.size(); j++) {
+				for (int j2 = 0; j2 < list.size(); j2++) {
+					if (inductorEntities.get(i).deviceEntities.get(j).longAddress
+							.equals(list.get(j2).longAddress)) {
+						inductorEntities.get(i).deviceEntities.set(j,
+								list.get(j2));
+					}
+				}
+			}
+		}
+
+		for (int i = 0; i < gridEntities.size(); i++) {
+			for (int j = 0; j < list.size(); j++) {
+				if (gridEntities.get(i).longAddress
+						.equals(list.get(j).longAddress)) {
+					gridEntities.set(i, list.get(j));
+				}
+			}
+		}
+		adapter.notifyDataSetChanged();
 
 	}
 
@@ -423,70 +580,9 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 		}
 
-		group.setOnCheckedChangeListener(new OnCheckedChangeListener() {
-
-			@Override
-			public void onCheckedChanged(RadioGroup group, int checkedId) {
-				int radioButtonId = group.getCheckedRadioButtonId();
-				int s = radioButtonId - 2000;
-				if (s < 0) {
-					return;
-				}
-				for (int i = 0; i < buttons.size(); i++) {
-					if (i == s) {
-						LayoutParams params = (LayoutParams) buttons.get(i)
-								.getLayoutParams();
-						params.width = DensityUtil
-								.dip2px(MainActivity.this, 96);
-						params.height = DensityUtil.dip2px(MainActivity.this,
-								96);
-						buttons.get(i).setLayoutParams(params);
-
-					} else {
-						LayoutParams params = (LayoutParams) buttons.get(i)
-								.getLayoutParams();
-						params.width = DensityUtil
-								.dip2px(MainActivity.this, 80);
-						params.height = DensityUtil.dip2px(MainActivity.this,
-								80);
-						buttons.get(i).setLayoutParams(params);
-					}
-				}
-
-				for (int i = 0; i < imageViews.size(); i++) {
-					if (i == s || s + 1 == i) {
-						imageViews.get(i).setBackgroundResource(
-								R.color.divider_red);
-					} else {
-						imageViews.get(i)
-								.setBackgroundResource(R.color.divider);
-					}
-				}
-
-				gridEntities.clear();
-				for (int j = 0; j < inductorEntities.get(s).deviceEntities
-						.size(); j++) {
-					inductorEntities.get(s).deviceEntities.get(j).selected = false;
-					gridEntities.add(inductorEntities.get(s).deviceEntities
-							.get(j));
-				}
-				allcheBox.setChecked(false);
-				adapter.notifyDataSetChanged();
-
-				setSwitch();
-
-			}
-		});
-
 		if (buttons.size() != 0) {
-
-			// RadioButton button=buttons.get(0);
-			// button.setSelected(false);
-			// button.setChecked(false);
 			group.clearCheck();
-			// group.check(buttons.get(1).getId());
 			group.check(buttons.get(0).getId());
-			// group.check(2001);
 			emptyView.setVisibility(View.GONE);
 			controlView.setVisibility(View.VISIBLE);
 		} else {
@@ -511,8 +607,10 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 		}
 		if (b) {
 			switchImageView.setImageResource(R.drawable.tab_switch_on);
+			switchFlag = true;
 		} else {
 			switchImageView.setImageResource(R.drawable.tab_switch_off);
+			switchFlag = false;
 		}
 
 	}
@@ -531,6 +629,30 @@ public class MainActivity extends BaseActivity implements OnClickListener {
 
 			break;
 		case R.id.main_bottom_switch:
+			List<DeviceEntity> entities = new ArrayList<DeviceEntity>();
+			for (int i = 0; i < gridEntities.size(); i++) {
+				if (!gridEntities.get(i).selected) {
+					continue;
+				}
+				if (switchFlag && !gridEntities.get(i).running) {
+					entities.add(gridEntities.get(i));
+				} else if (!switchFlag && !gridEntities.get(i).running) {
+					entities.add(gridEntities.get(i));
+				}
+			}
+
+			if (entities.size() == 0) {
+				ToastUtils.displayShortToast(MainActivity.this, "未选中设备");
+				return;
+			}
+
+			if (switchFlag) {
+				pro.setVisibility(View.VISIBLE);
+				connection.openAll(entities, handler);
+			} else {
+				pro.setVisibility(View.VISIBLE);
+				connection.closeAll(entities, handler);
+			}
 
 			break;
 
